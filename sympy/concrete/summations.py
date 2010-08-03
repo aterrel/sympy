@@ -1,4 +1,9 @@
-from sympy.core import Expr, S, C, Symbol, Equality, Interval, sympify, Wild
+from sympy.core.expr import Expr
+from sympy.core.basic import C, S
+from sympy.core.symbol import  Symbol, Wild
+from sympy.core.relational import Equality
+from sympy.core.sets import Interval
+from sympy.core.sympify import sympify
 from sympy.solvers import solve
 from sympy.utilities import flatten
 
@@ -128,7 +133,7 @@ class Sum(Expr):
         s = S.Zero
         if m:
             for k in range(m):
-                term = f.subs(i, a+k)
+                term = f.subs(i, a + k)
                 if (eps and term and abs(term.evalf(3)) < eps):
                     return s, abs(term)
                 s += term
@@ -143,11 +148,11 @@ class Sum(Expr):
                 return expr.subs(i, a), 0
             return expr.subs(i, a), expr.subs(i, b)
         fa, fb = fpoint(f)
-        iterm = (fa + fb)/2
+        iterm = (fa + fb) / 2
         g = f.diff(i)
-        for k in xrange(1, n+2):
+        for k in xrange(1, n + 2):
             ga, gb = fpoint(g)
-            term = C.bernoulli(2*k)/C.Factorial(2*k)*(gb-ga)
+            term = C.bernoulli(2 * k) / C.Factorial(2 * k) * (gb - ga)
             if (eps and term and abs(term.evalf(3)) < eps) or (k > n):
                 break
             s += term
@@ -155,8 +160,8 @@ class Sum(Expr):
         return s + iterm, abs(term)
 
     def _eval_subs(self, old, new):
-        newargs = (self.args[1][0][0], self.args[1][0][1].subs(old,new),
-                   self.args[1][0][2].subs(old,new))
+        newargs = (self.args[1][0][0], self.args[1][0][1].subs(old, new),
+                   self.args[1][0][2].subs(old, new))
         return Sum(self.args[0].subs(old, new), newargs)
 
 
@@ -190,7 +195,7 @@ def telescopic_direct(L, R, n, (i, a, b)):
     """
     s = 0
     for m in xrange(n):
-        s += L.subs(i,a+m) + R.subs(i,b-m)
+        s += L.subs(i, a + m) + R.subs(i, b - m)
     return s
 
 def telescopic(L, R, (i, a, b)):
@@ -206,7 +211,7 @@ def telescopic(L, R, (i, a, b)):
     k = Wild("k")
     sol = (-R).match(L.subs(i, i + k))
     if sol and k in sol:
-        if L.subs(i,i + sol[k]) == -R:
+        if L.subs(i, i + sol[k]) == -R:
             #sometimes match fail(f(x+2).match(-f(x+k))->{k: -2 - 2x}))
             s = sol[k]
     #Then we try to solve using solve
@@ -225,10 +230,10 @@ def telescopic(L, R, (i, a, b)):
 
 def eval_sum(f, (i, a, b)):
     if not f.has(i):
-        return f*(b-a+1)
+        return f * (b - a + 1)
     definite = a.is_Integer and b.is_Integer
     # Doing it directly may be faster if there are very few terms.
-    if definite and (b-a < 100):
+    if definite and (b - a < 100):
         return eval_sum_direct(f, (i, a, b))
     # Try to do it symbolically. Even when the number of terms is known,
     # this can save time when b-a is big.
@@ -242,16 +247,16 @@ def eval_sum(f, (i, a, b)):
 
 def eval_sum_symbolic(f, (i, a, b)):
     if not f.has(i):
-        return f*(b-a+1)
+        return f * (b - a + 1)
     # Linearity
     if f.is_Mul:
         L, R = getab(f)
         if not L.has(i):
             sR = eval_sum_symbolic(R, (i, a, b))
-            if sR: return L*sR
+            if sR: return L * sR
         if not R.has(i):
             sL = eval_sum_symbolic(L, (i, a, b))
-            if sL: return R*sL
+            if sL: return R * sL
     if f.is_Add:
         L, R = getab(f)
         lrsum = telescopic(L, R, (i, a, b))
@@ -262,32 +267,32 @@ def eval_sum_symbolic(f, (i, a, b)):
             return lsum + rsum
     # Polynomial terms with Faulhaber's formula
     p = C.Wild('p')
-    e = f.match(i**p)
+    e = f.match(i ** p)
     if e != None:
         c = p.subs(e)
         B = C.bernoulli
         if c.is_integer and c >= 0:
-            s = (B(c+1, b+1) - B(c+1, a))/(c+1)
+            s = (B(c + 1, b + 1) - B(c + 1, a)) / (c + 1)
             return s.expand()
     # Geometric terms
     c1 = C.Wild('c1', exclude=[i])
     c2 = C.Wild('c2', exclude=[i])
     c3 = C.Wild('c3', exclude=[i])
-    e = f.match(c1**(c2*i+c3))
+    e = f.match(c1 ** (c2 * i + c3))
     if e is not None:
         c1 = c1.subs(e)
         c2 = c2.subs(e)
         c3 = c3.subs(e)
         # TODO: more general limit handling
-        return c1**c3 * (c1**(a*c2) - c1**(c2+b*c2)) / (1 - c1**c2)
+        return c1 ** c3 * (c1 ** (a * c2) - c1 ** (c2 + b * c2)) / (1 - c1 ** c2)
     return None
 
 def eval_sum_direct(expr, (i, a, b)):
     s = S.Zero
     if expr.has(i):
-        for j in xrange(a, b+1):
+        for j in xrange(a, b + 1):
             s += expr.subs(i, j)
     else:
-        for j in xrange(a, b+1):
+        for j in xrange(a, b + 1):
             s += expr
     return s

@@ -2,9 +2,11 @@
 This module contains query handlers responsible for calculus queries:
 infinitesimal, bounded, etc.
 """
-from sympy.logic.boolalg import conjuncts
-from sympy.assumptions import Q, ask, Assume
+
+from sympy.assumptions.ask import  ask, Q
+from sympy.assumptions.assume import Assume
 from sympy.assumptions.handlers import CommonHandler
+from sympy.logic.boolalg import conjuncts
 
 class AskInfinitesimalHandler(CommonHandler):
     """

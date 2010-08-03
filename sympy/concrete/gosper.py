@@ -1,9 +1,9 @@
 from sympy.core.basic import S
-from sympy.core.symbol import Symbol
 from sympy.core.mul import Mul
-from sympy.core import sympify
-
-from sympy.polys import gcd, quo, roots, resultant
+from sympy.core.symbol import Symbol
+from sympy.core.sympify import sympify
+from sympy.polys.polytools import gcd, quo, resultant
+from sympy.polys.polyroots import roots
 
 def normal(f, g, n=None):
     """Given relatively prime univariate polynomials 'f' and 'g',
@@ -50,7 +50,7 @@ def normal(f, g, n=None):
 
     h = Symbol('h', dummy=True)
 
-    res = resultant(A, B.subs(n, n+h), n)
+    res = resultant(A, B.subs(n, n + h), n)
 
     nni_roots = roots(res, h, filter='Z',
         predicate=lambda r: r >= 0).keys()
@@ -59,14 +59,14 @@ def normal(f, g, n=None):
         return (f, g, S.One)
     else:
         for i in sorted(nni_roots):
-            d = gcd(A, B.subs(n, n+i), n)
+            d = gcd(A, B.subs(n, n + i), n)
 
             A = quo(A, d, n)
-            B = quo(B, d.subs(n, n-i), n)
+            B = quo(B, d.subs(n, n - i), n)
 
-            C *= Mul(*[ d.subs(n, n-j) for j in xrange(1, i+1) ])
+            C *= Mul(*[ d.subs(n, n - j) for j in xrange(1, i + 1) ])
 
-        return (Z*A, B, C)
+        return (Z * A, B, C)
 
 def gosper(term, k, a, n):
     from sympy.solvers import rsolve_poly
@@ -77,7 +77,7 @@ def gosper(term, k, a, n):
         p, q = term.as_numer_denom()
         A, B, C = normal(p, q, k)
 
-        B = B.subs(k, k-1)
+        B = B.subs(k, k - 1)
 
         R = rsolve_poly([-B, A], C, k)
         symbol = []
@@ -93,8 +93,8 @@ def gosper(term, k, a, n):
                 else:
                     R = W
 
-            Z = B*R*term/C
-            return simplify(Z.subs(k, n+1) - Z.subs(k, a))
+            Z = B * R * term / C
+            return simplify(Z.subs(k, n + 1) - Z.subs(k, a))
         else:
             return None
 

@@ -1,14 +1,16 @@
 """Module for querying SymPy objects about assumptions."""
-import inspect
+
 import copy
-from sympy.core import sympify
-from sympy.utilities.source import get_class
-from sympy.assumptions import global_assumptions, Assume, Predicate
-from sympy.assumptions.assume import eliminate_assume
-from sympy.logic.boolalg import to_cnf, conjuncts, disjuncts, \
-    And, Not, Implies, Equivalent, to_int_repr
-from sympy.logic.inference import literal_symbol
+import inspect
+
+from sympy.assumptions.assume import eliminate_assume, global_assumptions, \
+    Predicate
+from sympy.core.sympify import sympify
 from sympy.logic.algorithms.dpll import dpll_int_repr
+from sympy.logic.boolalg import And, conjuncts, disjuncts, Equivalent, \
+    Implies, Not, to_cnf, to_int_repr
+from sympy.logic.inference import literal_symbol
+from sympy.utilities.source import get_class
 
 class Q:
     """Supported ask keys."""
@@ -120,17 +122,17 @@ def ask(expr, key, assumptions=True):
                 for atom in disjuncts(clause):
                     lit, pos = literal_symbol(atom), type(atom) is not Not
                     if pos:
-                        out.add(known_facts_keys.index(lit)+1)
+                        out.add(known_facts_keys.index(lit) + 1)
                     else:
-                        out.add(-(known_facts_keys.index(lit)+1))
+                        out.add(-(known_facts_keys.index(lit) + 1))
                 clauses.append(out)
 
     n = len(known_facts_keys)
-    clauses.append(set([known_facts_keys.index(key)+1]))
-    if not dpll_int_repr(clauses, set(range(1, n+1)), {}):
+    clauses.append(set([known_facts_keys.index(key) + 1]))
+    if not dpll_int_repr(clauses, set(range(1, n + 1)), {}):
         return False
-    clauses[-1] = set([-(known_facts_keys.index(key)+1)])
-    if not dpll_int_repr(clauses, set(range(1, n+1)), {}):
+    clauses[-1] = set([-(known_facts_keys.index(key) + 1)])
+    if not dpll_int_repr(clauses, set(range(1, n + 1)), {}):
         # if the negation is satisfiable, it is entailed
         return True
     del clauses

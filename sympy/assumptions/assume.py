@@ -1,6 +1,5 @@
 # doctests are disabled because of issue #1521
-from sympy.core import  Symbol
-from sympy.core.relational import Relational
+
 from sympy.logic.boolalg import Boolean, Not
 
 class AssumptionsContext(set):

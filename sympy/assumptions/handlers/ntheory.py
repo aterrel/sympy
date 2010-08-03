@@ -1,9 +1,9 @@
 """
 Handlers for keys related to number theory: prime, even, odd, etc.
 """
-from sympy.assumptions import Q, ask
+from sympy.assumptions.ask import Q, ask
 from sympy.assumptions.handlers import CommonHandler
-from sympy.ntheory import isprime
+from sympy.ntheory.primetest import isprime
 
 class AskPrimeHandler(CommonHandler):
     """

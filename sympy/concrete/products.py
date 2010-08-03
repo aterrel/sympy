@@ -1,6 +1,10 @@
-from sympy.core import Expr, S, C, Mul, sympify
-from sympy.polys import quo, roots
-from sympy.simplify import powsimp
+from sympy.core.basic import C, S
+from sympy.core.expr import Expr
+from sympy.core.mul import Mul
+from sympy.core.sympify import sympify
+from sympy.polys.polyroots import roots
+from sympy.polys.polytools import quo
+from sympy.simplify.simplify import powsimp
 
 class Product(Expr):
     """Represents unevaluated product.
@@ -37,7 +41,7 @@ class Product(Expr):
             k, a, n = map(sympify, (k, a, n))
 
             if isinstance(a, C.Number) and isinstance(n, C.Number):
-                return Mul(*[term.subs(k, i) for i in xrange(int(a), int(n)+1)])
+                return Mul(*[term.subs(k, i) for i in xrange(int(a), int(n) + 1)])
         else:
             raise NotImplementedError
 
@@ -83,23 +87,23 @@ class Product(Expr):
         k = self.index
 
         if not term.has(k):
-            return term**(n-a+1)
+            return term ** (n - a + 1)
         elif term.is_polynomial(k):
             poly = term.as_poly(k)
 
             A = B = Q = S.One
-            C_= poly.LC()
+            C_ = poly.LC()
 
             all_roots = roots(poly, multiple=True)
 
             for r in all_roots:
-                A *= C.RisingFactorial(a-r, n-a+1)
+                A *= C.RisingFactorial(a - r, n - a + 1)
                 Q *= n - r
 
             if len(all_roots) < poly.degree():
                 B = Product(quo(poly, Q.as_poly(k)), (k, a, n))
 
-            return poly.LC()**(n-a+1) * A * B
+            return poly.LC()**(n - a + 1) * A * B
         elif term.is_Add:
             p, q = term.as_numer_denom()
 
@@ -128,12 +132,12 @@ class Product(Expr):
                 s = sum(term.exp, (k, a, n))
 
                 if not isinstance(s, Sum):
-                    return term.base**s
+                    return term.base ** s
             elif not term.exp.has(k):
                 p = self._eval_product(a, n, term.base)
 
                 if p is not None:
-                    return p**term.exp
+                    return p ** term.exp
 
 def product(*args, **kwargs):
     prod = Product(*args, **kwargs)

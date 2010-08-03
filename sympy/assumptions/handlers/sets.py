@@ -1,7 +1,8 @@
 """
 Handlers for keys related to set membership: integer, rational, etc.
 """
-from sympy.assumptions import Q, ask
+
+from sympy.assumptions.ask import ask, Q
 from sympy.assumptions.handlers import CommonHandler
 
 class AskIntegerHandler(CommonHandler):
@@ -43,8 +44,8 @@ class AskIntegerHandler(CommonHandler):
             if not ask(arg, Q.integer, assumptions):
                 if arg.is_Rational:
                     if arg.q == 2:
-                        return ask(2*expr, Q.even, assumptions)
-                    if ~(arg.q & 1):
+                        return ask(2 * expr, Q.even, assumptions)
+                    if ~ (arg.q & 1):
                         return None
                 elif ask(arg, Q.irrational, assumptions):
                     if _output:
@@ -337,7 +338,7 @@ class AskComplexHandler(CommonHandler):
     def NegativeInfinity(expr, assumptions):
         return False
 
-    sin, cos, exp, re, im = [abs]*5 # they are all complex functions
+    sin, cos, exp, re, im = [abs] * 5 # they are all complex functions
 
 class AskImaginaryHandler(CommonHandler):
     """

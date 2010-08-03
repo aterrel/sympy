@@ -119,7 +119,7 @@ def sympify(a, locals=None, convert_xor=True, strict=False):
     if locals is None:
         locals = {}
     if convert_xor:
-        a = a.replace('^','**')
+        a = a.replace('^', '**')
 
     import ast_parser
     return ast_parser.parse_expr(a, locals)

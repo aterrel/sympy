@@ -1,6 +1,6 @@
-from sympy.core import S, Add
-from sympy.utilities.source import get_class
-from sympy.assumptions import Q, ask
+from sympy.core.basic import S
+from sympy.core.add import Add
+from sympy.assumptions.ask import ask, Q
 from sympy.logic.boolalg import fuzzy_not
 
 def refine(expr, assumptions=True):
@@ -55,7 +55,7 @@ def refine_abs(expr, assumptions):
         # if it's nonnegative
         return arg
     if ask(arg, Q.negative, assumptions):
-        return -arg
+        return - arg
 
 def refine_Pow(expr, assumptions):
     """
@@ -117,7 +117,7 @@ def refine_Pow(expr, assumptions):
                         odd_terms.add(t)
 
                 terms -= even_terms
-                if len(odd_terms)%2:
+                if len(odd_terms) % 2:
                     terms -= odd_terms
                     new_coeff = (coeff + S.One) % 2
                 else:
@@ -126,7 +126,7 @@ def refine_Pow(expr, assumptions):
 
                 if new_coeff != coeff or len(terms) < initial_number_of_terms:
                     terms.add(new_coeff)
-                    return expr.base**(Add(*terms))
+                    return expr.base ** (Add(*terms))
 
 
 def refine_exp(expr, assumptions):
@@ -143,15 +143,15 @@ def refine_exp(expr, assumptions):
     """
     arg = expr.args[0]
     if arg.is_Mul:
-        coeff = arg.as_coefficient(S.Pi*S.ImaginaryUnit)
+        coeff = arg.as_coefficient(S.Pi * S.ImaginaryUnit)
         if coeff:
-            if ask(2*coeff, Q.integer, assumptions):
+            if ask(2 * coeff, Q.integer, assumptions):
                 if ask(coeff, Q.even, assumptions):
                     return S.One
                 elif ask(coeff, Q.odd, assumptions):
                     return S.NegativeOne
                 elif ask(coeff + S.Half, Q.even, assumptions):
-                    return -S.ImaginaryUnit
+                    return - S.ImaginaryUnit
                 elif ask(coeff + S.Half, Q.odd, assumptions):
                     return S.ImaginaryUnit
 
